@@ -88,12 +88,7 @@ public class Player : MonoBehaviour
         }
 
 
-        public void WarpPlayer (Transform target, float ratio)
-        {
-
-
-
-        }
+ 
 
 
     }
