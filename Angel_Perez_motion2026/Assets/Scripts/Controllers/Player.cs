@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
     public GameObject bombPrefab;
     public Transform bombsTransform;
 
+    public List<float> angles;
+
     public Vector2 trailspacing;
 
     public Vector3 diff;
@@ -55,7 +57,7 @@ public class Player : MonoBehaviour
 
         PlayerMovement();
 
-       
+        PlayerRadar(1, 4);
 
         if (Keyboard.current.bKey.wasPressedThisFrame)
         {
@@ -161,6 +163,19 @@ public class Player : MonoBehaviour
 
     }
 
+
+    public void PlayerRadar(float radius, int points)
+    {
+        float offsetAngle = 360 / points;
+
+        angles.Add(0);
+
+        for (int i = 1; i <= points-1; i++)
+        {
+            angles.Add(offsetAngle * i);
+        }
+
+    }
 
 
 
