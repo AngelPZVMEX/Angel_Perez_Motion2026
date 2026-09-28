@@ -16,10 +16,34 @@ public class Player : MonoBehaviour
 
     public Vector3 diff;
 
+    public float speed = 0.01f;
+
+    public Vector3 myposition;
+    public float maxspeed;
+
+    public float currentAcceleration;
+
+    public float accelerationTime;
+
+    public float decelerationTime;
+
+    public float deceleration;
+
+    public Vector3 currentVelocity = Vector3.right;
+
+    public Vector3 currentDeceleration = Vector3.left;
+
+    
+
     void Start()
     {
         diff = new Vector3(0, -1, 0);
-        trailspacing = new Vector2 (0, 2);
+        trailspacing = new Vector2(0, 2);
+
+        currentAcceleration = maxspeed / accelerationTime;
+
+        deceleration = maxspeed / decelerationTime;
+
     }
 
 
@@ -27,7 +51,11 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        Vector3 myposition = transform.position;
+        myposition = transform.position;
+
+        PlayerMovement();
+
+       
 
         if (Keyboard.current.bKey.wasPressedThisFrame)
         {
@@ -37,12 +65,16 @@ public class Player : MonoBehaviour
         if (Keyboard.current.tKey.wasPressedThisFrame)
         {
             {
-                SpawnBombTrail(myposition,trailspacing, 4);
+                SpawnBombTrail(myposition, trailspacing, 4);
             }
         }
         if (Keyboard.current.rKey.wasPressedThisFrame)
         {
             spawnBombOnRandomCorner(4);
+
+        }
+
+
         }
 
         void spawnBombAtOffset(Vector3 theposition, Vector3 theoffset)
@@ -57,7 +89,7 @@ public class Player : MonoBehaviour
 
 
 
-                Instantiate(bombPrefab, theposition - (Vector3) (inBombSpacing * i),quaternion.identity);
+                Instantiate(bombPrefab, theposition - (Vector3)(inBombSpacing * i), quaternion.identity);
 
             }
         }
@@ -87,11 +119,52 @@ public class Player : MonoBehaviour
             Debug.Log(cornerN);
         }
 
+        public void PlayerMovement()
+    {
+        Vector3 aDirection = Vector3.zero;
 
- 
+        if (Keyboard.current.upArrowKey.isPressed)
+        {
+            aDirection += Vector3.up;
+        }
+        if (Keyboard.current.downArrowKey.isPressed)
+        {
+            aDirection += Vector3.down;
+        }
+        if (Keyboard.current.leftArrowKey.isPressed)
+        {
+            aDirection += Vector3.left;
+        }
+        if (Keyboard.current.rightArrowKey.isPressed)
+        {
+            aDirection += Vector3.right;
+        }
 
+        currentVelocity += aDirection.normalized * currentAcceleration * Time.deltaTime;
+
+       if (aDirection.normalized == Vector3.zero)
+        {
+            currentDeceleration += aDirection.normalized * deceleration * Time.deltaTime;
+        }
+        
+
+        //need to implement deceleration
+
+        if(currentVelocity.magnitude > maxspeed)
+        {
+            currentVelocity = currentVelocity.normalized * maxspeed;
+        }
+
+        transform.position = transform.position + currentVelocity + currentDeceleration * Time.deltaTime;
+
+        Debug.Log(aDirection.normalized);
 
     }
+
+
+
+
+    
 }
 
 
