@@ -38,7 +38,7 @@ public class Player : MonoBehaviour
 
     public Vector3 mousepos;
 
-
+    public float grappleSpeed;
 
 
     void Start()
@@ -176,8 +176,22 @@ public class Player : MonoBehaviour
         {
              Debug.DrawLine(transform.position, grappleEnd, Color.red, 2f);
 
+            vector3 grappleDirection = (enemyTransform.position - transform.position).normalized;
+            float grappleDistance = Vector3.Distance(transform.position, enemyTransform.position);
+
+            grapple.transform.position = transform.position + (grappleDirection * grappleDistance)* grappleSpeed * Time.deltaTime;
+
+            While (Vector3.Distance(transform.position, enemyTransform.position) > 0.1f)
+            {
+                transform.position += grappleDirection * speed * Time.deltaTime;
+            }
+            
 
         }
+
+        currentVelocity += accelerationDirection.normalized * currentAcceleration * Time.deltaTime;
+
+        transform.position += currentVelocity * Time.deltaTime;
     }
 
 
