@@ -40,6 +40,9 @@ public class Player : MonoBehaviour
 
     public float grappleSpeed;
 
+    public float grappleStopDistance = 1.5f;
+
+    private bool isGrappling = false;
 
     void Start()
     {
@@ -159,45 +162,45 @@ public class Player : MonoBehaviour
         transform.position += currentVelocity * Time.deltaTime;
     }
 
-    public void GrappleHook (float range, Vector3 mousepos)
+
+    public void GrappleHook(float range, Vector3 mousepos)
     {
-       Vector3 direction = mousepos - transform.position;
-        direction.z = 0f;
-        direction.Normalize();
-
-        Vector3 grappleEnd = transform.position + direction * range;
-
-       
-
-        Debug.Log("Grapple endpoint: " + grappleEnd);
-
-
-        if (Keyboard.current.qKey.wasPressedThisFrame && Vector3.Distance(transform.position,enemyTransform.position) <= range)
+        // Start grappling when Q is pressed
+        if (Keyboard.current.qKey.wasPressedThisFrame && Vector3.Distance(transform.position, enemyTransform.position) <= range)
         {
-             Debug.DrawLine(transform.position, grappleEnd, Color.red, 2f);
+            isGrappling = true;
 
-            vector3 grappleDirection = (enemyTransform.position - transform.position).normalized;
-            float grappleDistance = Vector3.Distance(transform.position, enemyTransform.position);
-
-            grapple.transform.position = transform.position + (grappleDirection * grappleDistance)* grappleSpeed * Time.deltaTime;
-
-            While (Vector3.Distance(transform.position, enemyTransform.position) > 0.1f)
-            {
-                transform.position += grappleDirection * speed * Time.deltaTime;
-            }
-            
-
+            Debug.DrawLine(transform.position, enemyTransform.position,Color.red,2f );
         }
 
-        currentVelocity += accelerationDirection.normalized * currentAcceleration * Time.deltaTime;
+        // Continue pulling every frame while grappling
+        if (isGrappling)
+        {
+            Vector3 direction = enemyTransform.position - transform.position;
 
-        transform.position += currentVelocity * Time.deltaTime;
+            direction.z = 0f;
+
+            float distance = direction.magnitude;
+
+            if (distance <= grappleStopDistance)
+            {
+                isGrappling = false;
+            }
+            else
+            {
+                direction.Normalize();
+
+                // Move the player toward the enemy
+                transform.position += direction
+                    * grappleSpeed
+                    * Time.deltaTime;
+            }
+        }
     }
 
 
 
 
-    
 }
 
 
