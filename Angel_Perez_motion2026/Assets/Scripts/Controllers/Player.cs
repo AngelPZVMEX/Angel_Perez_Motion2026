@@ -170,7 +170,7 @@ public class Player : MonoBehaviour
         {
             isGrappling = true;
 
-            Debug.DrawLine(transform.position, enemyTransform.position,Color.red,2f );
+            Debug.DrawLine(transform.position, enemyTransform.position,Color.red,20f );
         }
 
         // Continue pulling every frame while grappling
@@ -191,9 +191,7 @@ public class Player : MonoBehaviour
                 direction.Normalize();
 
                 // Move the player toward the enemy
-                transform.position += direction
-                    * grappleSpeed
-                    * Time.deltaTime;
+                transform.position += direction * grappleSpeed * Time.deltaTime;
             }
         }
     }
