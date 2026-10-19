@@ -1,7 +1,6 @@
-﻿using JetBrains.Annotations;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Mathematics;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +10,8 @@ public class Player : MonoBehaviour
     public Transform enemyTransform;
     public GameObject bombPrefab;
     public Transform bombsTransform;
+
+    public GameObject grapple;
 
     public Vector2 trailspacing;
 
@@ -33,7 +34,12 @@ public class Player : MonoBehaviour
 
     public Vector3 currentDeceleration = Vector3.left;
 
-    
+    public float range;
+
+    public Vector3 mousepos;
+
+
+
 
     void Start()
     {
@@ -44,6 +50,9 @@ public class Player : MonoBehaviour
 
         deceleration = maxspeed / decelerationTime;
 
+        Instantiate(grapple,new Vector3(100,100,100),quaternion.identity);
+        
+
     }
 
 
@@ -51,11 +60,17 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        grapple.transform.position = transform.position;
+
         myposition = transform.position;
 
         PlayerMovement();
 
-       
+        Vector2 mousenow = Mouse.current.position.ReadValue(); //gets mosuepos
+
+        mousepos = Camera.main.ScreenToWorldPoint(mousenow); //converts it to world point
+
+        GrappleHook(range,mousepos);
 
         if (Keyboard.current.bKey.wasPressedThisFrame)
         {
@@ -119,46 +134,50 @@ public class Player : MonoBehaviour
             Debug.Log(cornerN);
         }
 
-        public void PlayerMovement()
+    void PlayerMovement()
     {
-        Vector3 aDirection = Vector3.zero;
-
-        if (Keyboard.current.upArrowKey.isPressed)
-        {
-            aDirection += Vector3.up;
-        }
-        if (Keyboard.current.downArrowKey.isPressed)
-        {
-            aDirection += Vector3.down;
-        }
+        Vector3 accelerationDirection = Vector3.zero;
         if (Keyboard.current.leftArrowKey.isPressed)
         {
-            aDirection += Vector3.left;
+            accelerationDirection += Vector3.left;
         }
         if (Keyboard.current.rightArrowKey.isPressed)
         {
-            aDirection += Vector3.right;
+            accelerationDirection += Vector3.right;
         }
-
-        currentVelocity += aDirection.normalized * currentAcceleration * Time.deltaTime;
-
-       if (aDirection.normalized == Vector3.zero)
+        if (Keyboard.current.upArrowKey.isPressed)
         {
-            currentDeceleration += aDirection.normalized * deceleration * Time.deltaTime;
+            accelerationDirection += Vector3.up;
         }
-        
-
-        //need to implement deceleration
-
-        if(currentVelocity.magnitude > maxspeed)
+        if (Keyboard.current.downArrowKey.isPressed)
         {
-            currentVelocity = currentVelocity.normalized * maxspeed;
+            accelerationDirection += Vector3.down;
         }
+      
+        currentVelocity += accelerationDirection.normalized * currentAcceleration * Time.deltaTime;
 
-        transform.position = transform.position + currentVelocity + currentDeceleration * Time.deltaTime;
+        transform.position += currentVelocity * Time.deltaTime;
+    }
 
-        Debug.Log(aDirection.normalized);
+    public void GrappleHook (float range, Vector3 mousepos)
+    {
+       Vector3 direction = mousepos - transform.position;
+        direction.z = 0f;
+        direction.Normalize();
 
+        Vector3 grappleEnd = transform.position + direction * range;
+
+       
+
+        Debug.Log("Grapple endpoint: " + grappleEnd);
+
+
+        if (Keyboard.current.qKey.wasPressedThisFrame && Vector3.Distance(transform.position,enemyTransform.position) <= range)
+        {
+             Debug.DrawLine(transform.position, grappleEnd, Color.red, 2f);
+
+
+        }
     }
 
 
